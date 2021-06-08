@@ -1,0 +1,60 @@
+.login-head {
+    width: 20rem;
+    text-align: center;
+    margin: 20vh auto 2rem auto;
+}
+
+.login-head h3 {
+    color: #FFFFFF;
+}
+
+.login-box {
+    color: #FFFFFF;
+    width: 20rem;
+    padding: 1rem;
+    margin: auto;
+    border-radius: 0.25rem;
+    border: 1px solid #74B5C9;
+    box-shadow: 0 0 10px #3FBEEB;
+}
+
+.login-box .login-title {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 1rem;
+}
+
+.captcha-box {
+    position: relative;
+}
+
+.captcha-box img {
+    cursor: pointer;
+    top: 0;
+    position: absolute;
+    right: 0;
+    padding: 0.25rem;
+    height: calc(1.5em + 0.5rem);
+}
+
+.custom-bg {
+    background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3)), url('/static/images/login-background.jpg');
+    opacity: 1;
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    transition: opacity 700ms;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .custom-bg {
+        background-position: center center;
+    }
+}

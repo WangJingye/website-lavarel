@@ -1,0 +1,80 @@
+<?php
+
+namespace {{app}}\{{module}}\controller;
+
+use {{app}}\common\controller\BaseController;
+use {{app}}\{{module}}\service\{{table}}Service;
+
+class {{table}}Controller extends BaseController
+{
+    /** @var {{table}}Service */
+    public ${{mtable}}Service;{{otherDefineService}}
+
+    public function init()
+    {
+        $this->{{mtable}}Service = new {{table}}Service();
+        parent::init();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function indexAction()
+    {
+        $params = \App::$request->params;
+        $params['page'] = \App::$request->getParams('page', 1);
+        $params['pageSize'] = \App::$request->getParams('pageSize', 10);
+        if (!empty($params['search_type'])) {
+            $params[$params['search_type']] = $params['search_value'];
+        }
+        /** @var {{table}}Service $res */
+        $res = $this->{{mtable}}Service->getList($params);
+        $this->assign('params', $params);
+        $this->assign('pagination', $this->pagination($res));
+        $this->assign('list', $res->list);{{otherAssign}}
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function editAction()
+    {
+        $params = \App::$request->params->toArray();
+        if (\App::$request->isAjax() && \App::$request->isPost()) {
+            try {{{parseFile}}
+                $this->{{mtable}}Service->save{{table}}($params);
+                return $this->success('保存成功');
+            } catch (\Exception $e) {
+                return $this->error($e->getMessage());
+            }
+        }
+        $this->title = '创建{{tablename}}';
+        if (isset($params['{{primaryKey}}']) && $params['{{primaryKey}}']) {
+            $model = \Db::table('{{table}}')->where(['{{primaryKey}}' => $params['{{primaryKey}}']])->find();
+            if (!$model) {
+                throw new \Exception('数据不存在');
+            }
+            $this->assign('model', $model);
+            $this->title = '编辑{{tablename}} - ' . $model['{{primaryKey}}'];
+        }{{otherAssign}}
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function deleteAction()
+    {
+        $params = \App::$request->params->toArray();
+        if (\App::$request->isAjax() && \App::$request->isPost()) {
+            try {
+                if (!isset($params['{{primaryKey}}']) || $params['{{primaryKey}}'] == '') {
+                    throw new \Exception('非法请求');
+                }
+                $this->{{mtable}}Service->delete{{table}}($params);
+                return $this->success('删除成功');
+            } catch (\Exception $e) {
+                return $this->error($e->getMessage());
+            }
+        }
+    }{{statusAction}}{{sortAction}}
+}

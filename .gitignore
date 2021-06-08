@@ -1,0 +1,13 @@
+/.idea/
+/.vscode/
+/.env
+/nbproject/
+/storage/
+/logs/
+/vendor/
+
+.DS_Store
+*~
+
+phpunit
+.phpunit.result.cache
