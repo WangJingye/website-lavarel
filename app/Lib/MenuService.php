@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Lib\System;
+namespace App\Lib;
 
 use App\Helper\UrlHelper;
 use App\Models\MenuModel;

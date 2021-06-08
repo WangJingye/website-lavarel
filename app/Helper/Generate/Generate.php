@@ -94,15 +94,62 @@ class Generate extends ObjectAccess
     public function run()
     {
         if ($this->theme == 'web') {
-            $this->common()->module()->service()->controller()->view()->js();
+            $this->common()->service()->controller()->view()->js()->route();
         } else {
-            $this->common()->module()->service()->controller();
+            $this->common()->service()->controller();
         }
+    }
+
+    public function route()
+    {
+        $webStr = file_get_contents(app()->basePath() . '/routes/web.php');
+        $prefixUri = lcfirst($this->module) . '/' . lcfirst($this->table) . '/';
+        $list = [
+            $prefixUri . 'index' => ['type' => ['get'], 'action' => 'index'],
+            $prefixUri . 'edit' => ['type' => ['get', 'post'], 'action' => 'edit'],
+
+
+            $prefixUri . 'delete' => ['type' => ['post'], 'action' => 'delete'],
+        ];
+        if (isset($this->option['fcomment']['status'])) {
+            $list[$prefixUri . 'set-status'] = ['type' => ['post'], 'action' => 'setStatus'];
+        }
+        if (isset($this->option['fcomment']['sort'])) {
+            $list[$prefixUri . 'set-sort'] = ['type' => ['post'], 'action' => 'setSort'];
+        }
+        $str = '    $router->%s(\'%s\', "' . $this->table . 'Controller@%s");';
+        $routeList = [];
+        foreach ($list as $k => $v) {
+            foreach ($v['type'] as $type) {
+                $routeStr = sprintf($str, $type, $k, $v['action']);
+                if (strpos($webStr, $routeStr) !== false) {
+                    continue;
+                }
+                $routeList[] = $routeStr;
+            }
+        }
+        if (count($routeList)) {
+            $str = preg_replace('/(\'namespace\' => \'' . $this->app . '\\\\' . $this->module . '\'.*?\n)/', '$1' . implode(PHP_EOL, $routeList) . PHP_EOL, $webStr);
+            file_put_contents(app()->basePath() . '/routes/web.php', $str);
+        }
+    }
+
+    public function model()
+    {
+        $filename = app()->path() . '/Models/' . $this->table . 'Model.php';
+        if (!file_exists($filename)) {
+            $file = $this->templatePath . 'model';
+            $str = file_get_contents($file);
+            $str = str_replace('{{Table}}', $this->table, $str);
+            $str = str_replace('{{table}}', strtolower($this->table), $str);
+            file_put_contents($filename, $str);
+        }
+        return $this;
     }
 
     public function js()
     {
-        $dir = PUBLIC_PATH . 'static/js/' . $this->app . '/' . $this->module;
+        $dir = app()->basePath() . '/public/static/js/' . lcfirst($this->app) . '/' . lcfirst($this->module);
         if (!file_exists($dir)) {
             mkdir($dir, 0755, true);
         }
@@ -208,6 +255,7 @@ class Generate extends ObjectAccess
         $str = str_replace('{{mtable}}', lcfirst($this->table), $str);
         $str = str_replace('{{app}}', $this->app, $str);
         $str = str_replace('{{module}}', $this->module, $str);
+        $str = str_replace('{{mmodule}}', lcfirst($this->module), $str);
         $str = str_replace('{{rules}}', $rules, $str);
         $str = str_replace('{{rulesMessage}}', $rulesMessage, $str);
         $str = str_replace('{{statusJs}}', $statusJs, $str);
@@ -222,7 +270,7 @@ class Generate extends ObjectAccess
 
     public function view()
     {
-        $dir = BASE_PATH . $this->app . '/' . $this->module . '/views/' . $this->controllerUrl;
+        $dir = app()->basePath() . '/resources/views/' . lcfirst($this->module) . '/' . $this->controllerUrl;
         if (!file_exists($dir)) {
             mkdir($dir, 0755, true);
         }
@@ -235,18 +283,18 @@ class Generate extends ObjectAccess
             if (!isset($this->option['feditshow'][$field]) || $this->option['feditshow'][$field] == 0) {
                 continue;
             }
-            $inputParams .= PHP_EOL . '    <div class="form-group row">';
-            $inputParams .= PHP_EOL . '        <label class="col-sm-4 text-nowrap col-form-label form-label">' . $label . '</label>';
-            $inputParams .= PHP_EOL . '        <div class="col-sm-8">';
+            $inputParams .= PHP_EOL . '        <div class="form-group row">';
+            $inputParams .= PHP_EOL . '            <label class="col-sm-4 text-nowrap col-form-label form-label">' . $label . '</label>';
+            $inputParams .= PHP_EOL . '            <div class="col-sm-8">';
             if (in_array($this->option['ftype'][$field], ['select', 'select2', 'radio', 'checkbox'])) {
                 $res = $this->getChooseList($field);
             }
             if (in_array($this->option['ftype'][$field], ['select', 'select2', 'radio', 'checkbox'])) {
-                $inputParams .= PHP_EOL . '            <?= \admin\extend\input\SelectInput::instance($this->' . $res['variable'] . ', $this->model[\'' . $field . '\'], \'' . $field . '\',\'' . $this->option['ftype'][$field] . '\')->show(); ?>';
+                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\SelectInput::instance($' . $res['variable'] . ', $model[\'' . $field . '\'], \'' . $field . '\', \'' . $this->option['ftype'][$field] . '\')->show(); ?>';
             } else if ($this->option['ftype'][$field] == 'textarea') {
-                $inputParams .= PHP_EOL . '            <textarea name="' . $field . '" class="form-control" placeholder="请输入' . $label . '"><?= $this->model[\'' . $field . '\'] ?></textarea>';
+                $inputParams .= PHP_EOL . '                <textarea name="' . $field . '" class="form-control" placeholder="请输入' . $label . '"><?= $model[\'' . $field . '\'] ?></textarea>';
             } else if ($this->option['ftype'][$field] == 'image') {
-                $inputParams .= PHP_EOL . '            <?= \admin\extend\image\ImageInput::instance($this->model[\'' . $field . '\'], \'' . $field . '\', 9)->show(); ?>';;
+                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\ImageInput::instance($model[\'' . $field . '\'], \'' . $field . '\', 9)->show(); ?>';;
             } else {
                 $placeholder = '请输入' . $label;
                 if (in_array($this->option['ftype'][$field], ['date', 'date-normal', 'datetime', 'datetime-normal'])) {
@@ -254,12 +302,12 @@ class Generate extends ObjectAccess
                 } else if (in_array($this->option['ftype'][$field], ['datetime', 'datetime-normal'])) {
                     $placeholder = $label . '，格式为2019-01-01 09:00:00';
                 }
-                $inputParams .= PHP_EOL . '            <input type="text" name="' . $field . '" class="form-control" value="<?= $this->model[\'' . $field . '\']?>" placeholder="' . $placeholder . '">';
+                $inputParams .= PHP_EOL . '                <input type="text" name="' . $field . '" class="form-control" value="<?= $model[\'' . $field . '\']?>" placeholder="' . $placeholder . '">';
             }
+            $inputParams .= PHP_EOL . '            </div>';
             $inputParams .= PHP_EOL . '        </div>';
-            $inputParams .= PHP_EOL . '    </div>';
         }
-        $filename = $dir . '/edit.php';
+        $filename = $dir . '/edit.blade.php';
         $file = $this->templatePath . 'view/edit';
         $str = file_get_contents($file);
         $str = str_replace('{{table}}', $this->table, $str);
@@ -267,6 +315,7 @@ class Generate extends ObjectAccess
         $str = str_replace('{{mtable}}', lcfirst($this->table), $str);
         $str = str_replace('{{app}}', $this->app, $str);
         $str = str_replace('{{module}}', $this->module, $str);
+        $str = str_replace('{{mmodule}}', lcfirst($this->module), $str);
         $str = str_replace('{{inputParams}}', $inputParams, $str);
         $str = str_replace('{{primaryKey}}', $this->primaryKey, $str);
 
@@ -281,7 +330,7 @@ class Generate extends ObjectAccess
         foreach ($this->option['fcomment'] as $field => $label) {
             $res = $this->getChooseList($field);
             if (isset($this->option['fpageshow'][$field]) && $this->option['fpageshow'][$field] == 1) {
-                $header .= PHP_EOL . '            <th>' . $label . '</th>';
+                $header .= PHP_EOL . '                <th>' . $label . '</th>';
                 $statusHtml = '';
                 if ($field == 'status' && $this->option['fchoice'][$field] == 1 && count($res['list']) == 2) {
                     $statusHtml = ' class="status"';
@@ -290,7 +339,7 @@ class Generate extends ObjectAccess
                     $statusHtml = ' class="sort"';
                 }
                 if (in_array($this->option['ftype'][$field], ['select', 'radio', 'checkbox'])) {
-                    $body .= PHP_EOL . '                <td' . $statusHtml . '><?= $this->' . $res['variable'] . '[$v[\'' . $field . '\']] ?></td>';
+                    $body .= PHP_EOL . '                <td' . $statusHtml . '><?= $' . $res['variable'] . '[$v[\'' . $field . '\']] ?></td>';
                 } else if ($this->option['ftype'][$field] == 'date') {
                     $body .= PHP_EOL . '                <td' . $statusHtml . '><?= date(\'Y-m-d\', $v[\'' . $field . '\']) ?></td>';
 
@@ -308,24 +357,24 @@ class Generate extends ObjectAccess
             }
             if (isset($this->option['fpagesearch1'][$field]) && $this->option['fpagesearch1'][$field] == 1) {
                 if (in_array($this->option['ftype'][$field], ['date', 'datetime'])) {
-                    $searchPer .= PHP_EOL . '    <div class="form-content">';
-                    $searchPer .= PHP_EOL . '        <?= \admin\extend\input\TimeSearch::instance(\'' . $field . '\', \'' . $label . '\', $this->params)->show() ?>';
-                    $searchPer .= PHP_EOL . '    </div>';
+                    $searchPer .= PHP_EOL . '        <div class="form-content">';
+                    $searchPer .= PHP_EOL . '            <?= \App\Helper\Input\TimeSearch::instance(\'' . $field . '\', \'' . $label . '\', $params)->show() ?>';
+                    $searchPer .= PHP_EOL . '        </div>';
                 } else {
-                    $searchPer .= PHP_EOL . '    <div class="form-content">';
-                    $searchPer .= PHP_EOL . '        <span class="col-form-label search-label">' . $label . '</span>';
+                    $searchPer .= PHP_EOL . '        <div class="form-content">';
+                    $searchPer .= PHP_EOL . '            <span class="col-form-label search-label">' . $label . '</span>';
                     if (!in_array($this->option['ftype'][$field], ['select', 'select2', 'radio', 'checkbox'])) {
-                        $searchPer .= PHP_EOL . '        <input type="text" class="form-control search-input" name="' . $field . '" value="<?= $this->params[\'' . $field . '\'] ?>">';
+                        $searchPer .= PHP_EOL . '            <input type="text" class="form-control search-input" name="' . $field . '" value="<?= $params[\'' . $field . '\'] ?>">';
                     } else {
                         $isSelect2 = $this->option['ftype'][$field] == 'select2' ? ' select2' : '';
-                        $searchPer .= PHP_EOL . '        <select class="form-control search-input' . $isSelect2 . '" name="' . $field . '">';
-                        $searchPer .= PHP_EOL . '            <option value="">请选择</option>';
-                        $searchPer .= PHP_EOL . '            <?php foreach ($this->' . $res['variable'] . ' as $k => $v): ?>';
-                        $searchPer .= PHP_EOL . '                <option value="<?= $k ?>" <?= $this->params[\'' . $field . '\'] == (string)$k ? \'selected\' : \'\' ?>><?= $v ?></option>';
-                        $searchPer .= PHP_EOL . '            <?php endforeach; ?>';
-                        $searchPer .= PHP_EOL . '        </select>';
+                        $searchPer .= PHP_EOL . '            <select class="form-control search-input' . $isSelect2 . '" name="' . $field . '">';
+                        $searchPer .= PHP_EOL . '                <option value="">请选择</option>';
+                        $searchPer .= PHP_EOL . '                <?php foreach ($' . $res['variable'] . ' as $k => $v): ?>';
+                        $searchPer .= PHP_EOL . '                <option value="<?= $k ?>" <?= $params[\'' . $field . '\'] == (string)$k ? \'selected\' : \'\' ?>><?= $v ?></option>';
+                        $searchPer .= PHP_EOL . '                <?php endforeach; ?>';
+                        $searchPer .= PHP_EOL . '            </select>';
                     }
-                    $searchPer .= PHP_EOL . '    </div>';
+                    $searchPer .= PHP_EOL . '        </div>';
                 }
             }
             if (isset($this->option['fpagesearch2'][$field]) && $this->option['fpagesearch2'][$field] == 1) {
@@ -336,27 +385,27 @@ class Generate extends ObjectAccess
         $statusIndex = '';
         if (isset($this->option['fcomment']['status']) && $this->option['fchoice']['status'] == 1 && count(($statusList = $this->getChooseList('status')['list'])) == 2) {
             $statusIndex = PHP_EOL . '                    <?php if ($v[\'status\'] == 1): ?>
-                        <div class="btn btn-danger btn-sm set-status-btn" data-id="<?= $v[\'' . $this->primaryKey . '\'] ?>"
-                             data-url="<?= \App::$urlManager->createUrl(\'' . $this->module . '/' . $this->controllerUrl . '/set-status\') ?>"
-                             data-status="0">
-                            <i class="glyphicon glyphicon-remove-circle"></i> <span>禁用</span>
-                        </div>
+                    <div class="btn btn-danger btn-sm set-status-btn" data-id="<?= $v[\'' . $this->primaryKey . '\'] ?>"
+                         data-url="<?= \App\Helper\UrlHelper::instance()->to(\'' . lcfirst($this->module) . '/' . $this->controllerUrl . '/set-status\') ?>"
+                         data-status="0">
+                        <i class="glyphicon glyphicon-remove-circle"></i> <span>禁用</span>
+                    </div>
                     <?php else: ?>
-                        <div class="btn btn-success btn-sm set-status-btn" data-id="<?= $v[\'' . $this->primaryKey . '\'] ?>"
-                             data-url="<?= \App::$urlManager->createUrl(\'' . $this->module . '/' . $this->controllerUrl . '/set-status\') ?>"
-                             data-status="1">
-                            <i class="glyphicon glyphicon-ok-circle"></i> <span>启用</span>
-                        </div>
+                    <div class="btn btn-success btn-sm set-status-btn" data-id="<?= $v[\'' . $this->primaryKey . '\'] ?>"
+                         data-url="<?= \App\Helper\UrlHelper::instance()->to(\'' . lcfirst($this->module) . '/' . $this->controllerUrl . '/set-status\') ?>"
+                         data-status="1">
+                        <i class="glyphicon glyphicon-ok-circle"></i> <span>启用</span>
+                    </div>
                     <?php endif; ?>';
         }
         $sortIndex = '';
         if (isset($this->option['fcomment']['sort'])) {
             $sortIndex = PHP_EOL . '                    <div class="btn btn-info btn-sm set-sort-btn" data-id="<?= $v[\'' . $this->primaryKey . '\'] ?>"
-                         data-url="<?= \App::$urlManager->createUrl(\'' . $this->module . '/' . $this->controllerUrl . '/set-sort\') ?>">
+                         data-url="<?= \App\Helper\UrlHelper::instance()->to(\'' . lcfirst($this->module) . '/' . $this->controllerUrl . '/set-sort\') ?>">
                         <i class="glyphicon glyphicon-sort"></i> 设置排序
                     </div>';
         }
-        $filename = $dir . '/index.php';
+        $filename = $dir . '/index.blade.php';
         $file = $this->templatePath . 'view/index';
         $str = file_get_contents($file);
         $str = str_replace('{{table}}', $this->table, $str);
@@ -364,6 +413,7 @@ class Generate extends ObjectAccess
         $str = str_replace('{{mtable}}', lcfirst($this->table), $str);
         $str = str_replace('{{app}}', $this->app, $str);
         $str = str_replace('{{module}}', $this->module, $str);
+        $str = str_replace('{{mmodule}}', lcfirst($this->module), $str);
         $str = str_replace('{{searchPer}}', $searchPer, $str);
         $str = str_replace('{{searchList}}', $searchList, $str);
         $str = str_replace('{{table-header}}', $header, $str);
@@ -408,16 +458,18 @@ class Generate extends ObjectAccess
 
     public function controller()
     {
-        $dir = BASE_PATH . $this->app . '/' . $this->module . '/controller';
+        $dir = app()->path() . '/Http/Controllers/' . $this->app . '/' . $this->module;
         if (!file_exists($dir)) {
             mkdir($dir, 0755, true);
         }
-        $filename = $dir . '/' . ucfirst($this->table) . 'Controller.php';
+        $filename = $dir . '/' . $this->table . 'Controller.php';
         $file = $this->templatePath . 'controller';
         $str = file_get_contents($file);
         $otherAssign = '';
         $parseFile = '';
         $otherDefineService = '';
+        $otherUse = '';
+        $otherCode = '';
         foreach ($this->option['fcomment'] as $field => $label) {
             if (in_array($this->option['ftype'][$field], ['select', 'select2', 'radio', 'checkbox'])) {
                 $res = $this->getChooseList($field);
@@ -427,14 +479,15 @@ class Generate extends ObjectAccess
                         $otherDefineService .= PHP_EOL . '        \'' . $key . '\' => \'' . $v . '\',';
                     }
                     $otherDefineService .= PHP_EOL . '    ];';
-                    $otherAssign .= PHP_EOL . '        $this->assign(\'' . $res['variable'] . '\', $this->' . $res['variable'] . ');';
+                    $otherAssign .= PHP_EOL . '            \'' . $res['variable'] . '\' => $this->' . $res['variable'] . ',';
                 } else {
-                    $otherAssign .= PHP_EOL . '        $' . $res['variable'] . ' = \Db::table(\'' . $res['table'] . '\')->field([\'' . $res['key'] . '\', \'' . $res['value'] . '\'])->findAll();';
-                    $otherAssign .= PHP_EOL . '        $' . $res['variable'] . ' = array_column($' . $res['variable'] . ', \'' . $res['value'] . '\',\'' . $res['key'] . '\');';
-                    $otherAssign .= PHP_EOL . '        $this->assign(\'' . $res['variable'] . '\', $' . $res['variable'] . ');';
+                    $otherCode .= PHP_EOL . '        $' . $res['variable'] . ' = \Db::table(\'' . $res['table'] . '\')->field([\'' . $res['key'] . '\', \'' . $res['value'] . '\'])->findAll();';
+                    $otherCode .= PHP_EOL . '        $' . $res['variable'] . ' = array_column($' . $res['variable'] . ', \'' . $res['value'] . '\',\'' . $res['key'] . '\');';
+                    $otherAssign .= PHP_EOL . '            \'' . $res['variable'] . '\' => $' . $res['variable'] . ',';
                 }
             } else if ($this->option['ftype'][$field] == 'image') {
-                $parseFile .= PHP_EOL . '                $params[\'' . $field . '\'] = $this->parseFileOrUrl(\'' . $field . '\',\'' . $this->module . '/' . $this->controllerUrl . '\');';
+                $otherUse .= PHP_EOL . 'use App\Helper\UploadHelper;';
+                $parseFile .= PHP_EOL . '                $params[\'' . $field . '\'] = UploadHelper::instance()->parseFileOrUrl(\'' . $field . '\',\'' . $this->module . '/' . $this->controllerUrl . '\');';
             }
         }
         $statusAction = '';
@@ -443,15 +496,17 @@ class Generate extends ObjectAccess
     /**
      * @throws \Exception
      */
-    public function setStatusAction()
+    public function setStatus()
     {
-        $params = \App::$request->params->toArray();
-        if (\App::$request->isAjax() && \App::$request->isPost()) {
+        $params = $this->request;
+        if ($this->request->ajax() && $this->request->isMethod(\'POST\')) {
             try {
                 if (empty($params[\'id\'])) {
                     throw new \Exception(\'非法请求\');
                 }
-                \Db::table(\'' . $this->table . '\')->where([\'' . $this->primaryKey . '\' => $params[\'id\']])->update([\'status\' => $params[\'status\']]);
+                $model = ' . $this->table . 'Model::query()->find($params[\'id\']);
+                $model->status = $params[\'status\'];
+                $model->save();
                 return $this->success($params[\'status\'] == 1 ? \'已启用\' : \'已禁用\');
             } catch (\Exception $e) {
                 return $this->error($e->getMessage());
@@ -465,14 +520,16 @@ class Generate extends ObjectAccess
     /**
      * @throws \Exception
      */
-    public function setSortAction()
+    public function setSort()
     {
         try {
-            $params = \App::$request->params->toArray();
+            $params = $this->request;
             if (empty($params[\'id\']) || empty($params[\'sort\'])) {
                 throw new \Exception(\'非法请求\');
             }
-            \Db::table(\'' . $this->table . '\')->where([\'' . $this->primaryKey . '\' => $params[\'id\']])->update([\'sort\' => $params[\'sort\']]);
+            $model = ' . $this->table . 'Model::query()->find($params[\'id\']);
+            $model->sort = $params[\'sort\'];
+            $model->save();
             return $this->success(\'设置成功\');
         } catch (\Exception $e) {
             return $this->error($e->getMessage());
@@ -481,12 +538,15 @@ class Generate extends ObjectAccess
         }
         $str = str_replace('{{table}}', $this->table, $str);
         $str = str_replace('{{otherDefineService}}', $otherDefineService, $str);
+        $str = str_replace('{{otherUse}}', $otherUse, $str);
         $str = str_replace('{{otherAssign}}', $otherAssign, $str);
+        $str = str_replace('{{otherCode}}', $otherCode, $str);
         $str = str_replace('{{parseFile}}', $parseFile, $str);
         $str = str_replace('{{controllerUrl}}', $this->controllerUrl, $str);
         $str = str_replace('{{mtable}}', lcfirst($this->table), $str);
         $str = str_replace('{{app}}', $this->app, $str);
         $str = str_replace('{{module}}', $this->module, $str);
+        $str = str_replace('{{mmodule}}', lcfirst($this->module), $str);
         $str = str_replace('{{primaryKey}}', $this->primaryKey, $str);
         $str = str_replace('{{tablename}}', $this->option['name'], $str);
         $str = str_replace('{{statusAction}}', $statusAction, $str);
@@ -494,55 +554,41 @@ class Generate extends ObjectAccess
         if (!file_exists($filename)) {
             file_put_contents($filename, $str);
         }
-        $filename = BASE_PATH . $this->app . '/common/controller/HomeController.php';
-        $file = $this->templatePath . 'home_controller';
-        if (file_exists($file)) {
-            $str = file_get_contents($file);
-            $str = str_replace('{{app}}', $this->app, $str);
-            if (!file_exists($filename)) {
-                file_put_contents($filename, $str);
-            }
-        }
         return $this;
     }
 
     public function service()
     {
-        $dir = BASE_PATH . $this->app . '/' . $this->module . '/service';
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $filename = $dir . '/' . ucfirst($this->table) . 'Service.php';
+        $filename = app()->path() . '/Lib/' . ucfirst($this->table) . 'Service.php';
         $file = $this->templatePath . 'service';
         $str = file_get_contents($file);
         $selectorParams = '';
         foreach ($this->option['fcomment'] as $field => $label) {
             if (isset($this->option['fpagesearch1'][$field]) && in_array($this->option['ftype'][$field], ['date', 'datetime'])) {
-                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '_start\']) && $params[\'' . $field . '_start\'] != \'\') {';
-                $where = '[\'' . $field . '\' => [\'>=\', strtotime($params[\'' . $field . '_start\'])]]';
-                $selectorParams .= PHP_EOL . '            $selector->where(' . $where . ');';
+                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '_start\']) && $params[\'' . $field . '_start\'] !== \'\') {';
+                $where = '\'' . $field . '\', \'>=\', strtotime($params[\'' . $field . '_start\'])';
+                $selectorParams .= PHP_EOL . '            $selector = $selector->where(' . $where . ');';
                 $selectorParams .= PHP_EOL . '        }';
-                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '_end\']) && $params[\'' . $field . '_end\'] != \'\') {';
-                $where = '[\'' . $field . '\' => [\'<\', strtotime($params[\'' . $field . '_end\']) + 24 * 3600]]';
-                $selectorParams .= PHP_EOL . '            $selector->where(' . $where . ');';
+                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '_end\']) && $params[\'' . $field . '_end\'] !== \'\') {';
+                $where = '\'' . $field . '\', \'<\', strtotime($params[\'' . $field . '_end\']) + 24 * 3600';
+                $selectorParams .= PHP_EOL . '            $selector = $selector->where(' . $where . ');';
                 $selectorParams .= PHP_EOL . '        }';
             } else {
-                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '\']) && $params[\'' . $field . '\'] != \'\') {';
+                $selectorParams .= PHP_EOL . '        if (isset($params[\'' . $field . '\']) && $params[\'' . $field . '\'] !== \'\') {';
                 if ($this->columnTypes[$field] == 'string') {
-                    $where = '[\'' . $field . '\' => [\'like\', \'%\' . $params[\'' . $field . '\'] . \'%\']]';
+                    $where = '\'' . $field . '\', \'like\', \'%\' . $params[\'' . $field . '\'] . \'%\'';
                 } else {
                     $where = '[\'' . $field . '\' => $params[\'' . $field . '\']]';
                 }
-                $selectorParams .= PHP_EOL . '            $selector->where(' . $where . ');';
+                $selectorParams .= PHP_EOL . '            $selector = $selector->where(' . $where . ');';
                 $selectorParams .= PHP_EOL . '        }';
             }
         }
         $checkUnique = '';
         if (count($this->uniqueColumns)) {
-            $checkUnique .= PHP_EOL . '        $selector = \Db::table(\'' . $this->table . '\');';
-            $checkUnique .= PHP_EOL . '        if (isset($data[\'' . $this->primaryKey . '\']) && $data[\'' . $this->primaryKey . '\']) {';
-            $checkUnique .= PHP_EOL . '            $selector->where([\'' . $this->primaryKey . '\' => [\'!=\', $data[\'' . $this->primaryKey . '\']]]);';
+            $checkUnique .= PHP_EOL . '        $selector = ' . $this->table . 'Model::query();';
+            $checkUnique .= PHP_EOL . '        if (!empty($data[\'' . $this->primaryKey . '\'])) {';
+            $checkUnique .= PHP_EOL . '            $selector = $selector->where(\'' . $this->primaryKey . '\', \'!=\', $data[\'' . $this->primaryKey . '\']);';
             $checkUnique .= PHP_EOL . '        }';
             $message = [];
             foreach ($this->uniqueColumns as $key => $vList) {
@@ -551,9 +597,9 @@ class Generate extends ObjectAccess
                     $checkUnique .= PHP_EOL . '        $check[\'' . $v . '\'] = $data[\'' . $v . '\'];';
                     $message[] = $this->option['fcomment'][$v];
                 }
-                $checkUnique .= PHP_EOL . '        $selector->where($check);';
+                $checkUnique .= PHP_EOL . '        $selector = $selector->where($check);';
             }
-            $checkUnique .= PHP_EOL . '        $row = $selector->find();';
+            $checkUnique .= PHP_EOL . '        $row = $selector->first();';
             $checkUnique .= PHP_EOL . '        if ($row) {';
 
             $checkUnique .= PHP_EOL . '            throw new \Exception(\'' . implode(',', $message) . '不能重复~\');';
@@ -573,38 +619,9 @@ class Generate extends ObjectAccess
         return $this;
     }
 
-    public function module()
-    {
-        $dir = BASE_PATH . $this->app . '/' . $this->module;
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-        }
-        if ($this->app == 'admin') {
-            $dirList = [
-                'service', 'controller', 'config', 'views'
-            ];
-        } else {
-            $dirList = [
-                'service', 'controller', 'config'
-            ];
-        }
-        foreach ($dirList as $v) {
-            if (!file_exists($dir . '/' . $v)) {
-                mkdir($dir . '/' . $v, 0755, true);
-            }
-        }
-        $filename = $dir . '/config/config.php';
-        if (!file_exists($filename)) {
-            $file = dirname(__FILE__) . '/template/config';
-            $str = file_get_contents($file);
-            file_put_contents($filename, $str);
-        }
-        return $this;
-    }
-
     public function common()
     {
-        $dir = app()->path() . '/Http/Controller/' . $this->app . '/Common';
+        $dir = app()->path() . '/Http/Controllers/' . $this->app . '/Common';
         if (!file_exists($dir)) {
             mkdir($dir, 0755, true);
         }
@@ -612,28 +629,13 @@ class Generate extends ObjectAccess
         if (!file_exists($dir)) {
             mkdir($dir, 0755, true);
         }
-        $filename = app()->path() . '/Lib/' . $this->module . '/BaseService.php';
+        $filename = app()->path() . '/Lib/BaseService.php';
         if (!file_exists($filename)) {
             $file = $this->templatePath . 'base_service';
             $str = file_get_contents($file);
             $str = str_replace('{{module}}', $this->module, $str);
             file_put_contents($filename, $str);
         }
-        $filename = $dir . '/controller/BaseController.php';
-        if (!file_exists($filename)) {
-            $file = $this->templatePath . 'base_controller';
-            $str = file_get_contents($file);
-            $str = str_replace('{{app}}', $this->app, $str);
-            file_put_contents($filename, $str);
-        }
-
-        $filename = $dir . '/config/config.php';
-        if (!file_exists($filename)) {
-            $file = dirname(__FILE__) . '/template/common_config';
-            $str = file_get_contents($file);
-            file_put_contents($filename, $str);
-        }
-
         return $this;
     }
 }

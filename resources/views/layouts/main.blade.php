@@ -10,7 +10,7 @@
 </head>
 <body style="background-color: #f7f7f9;">
 <?php
-$menuService = new \App\Lib\System\MenuService();
+$menuService = new \App\Lib\MenuService();
 $currentMenu = $menuService->getCurrentMenu();
 $activeMenuList = $menuService->getActiveMenu();
 $topList = $menuService->getTopList();

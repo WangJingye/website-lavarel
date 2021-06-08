@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Admin\System;
 
 use App\Http\Controllers\Admin\Common\Controller;
-use App\Lib\System\MenuService;
+use App\Lib\MenuService;
 use App\Models\MenuModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Laravel\Lumen\Routing\Router;
 
 class MenuController extends Controller
 {

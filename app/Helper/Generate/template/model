@@ -1,0 +1,8 @@
+<?php
+
+namespace App\Models;
+
+class {{Table}}Model extends Model
+{
+    public $table = '{{table}}';
+}

@@ -19,7 +19,7 @@ $(function () {
             {{primaryKey}}: $(this).data('{{primaryKey}}'),
         };
         $.loading('show');
-        $.post('/{{module}}/{{controllerUrl}}/delete', args, function (res) {
+        $.post('/{{mmodule}}/{{controllerUrl}}/delete', args, function (res) {
             $.loading('hide');
             if (res.code == 200) {
                 $.success(res.message);

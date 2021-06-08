@@ -14,7 +14,7 @@
 $router->get("generate", "GenerateController@index");
 $router->post("generate", "GenerateController@index");
 
-$router->group(['namespace' => 'Admin\Erp'], function ($router) {
+$router->group(['middleware' => ['web'], 'namespace' => 'Admin\Erp'], function ($router) {
     $router->get("erp/site-info/index", "SiteInfoController@index");
     $router->post("erp/site-info/index", "SiteInfoController@index");
     $router->get("erp/site-info/app-info", "SiteInfoController@appInfo");
@@ -24,6 +24,7 @@ $router->group(['namespace' => 'Admin\Erp'], function ($router) {
     $router->get("erp/site-info/wechat", "SiteInfoController@wechat");
     $router->post("erp/site-info/wechat", "SiteInfoController@wechat");
 });
+
 $router->group(['middleware' => ['web'], 'namespace' => 'Admin\System'], function ($router) {
     $router->get("/system/role/index", "RoleController@index");
     $router->get("/system/role/edit-role", "RoleController@editRole");

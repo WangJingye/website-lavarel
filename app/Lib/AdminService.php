@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Lib\System;
-
+namespace App\Lib;
 
 use App\Lib\Common\Encrypt;
 use App\Models\AdminModel;
@@ -55,7 +54,7 @@ class AdminService extends BaseService
             $data['salt'] = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
             $password = app()->siteInfo['default_password'];
             $data['password'] = Encrypt::encryptPassword($password, $data['salt']);
-            $model=new AdminModel();
+            $model = new AdminModel();
             $model->loadData($data);
             $model->save();
         }

@@ -1,25 +1,24 @@
 <?php
 
-namespace {{app}}\{{module}}\service;
+namespace App\Lib;
 
-use {{app}}\common\service\BaseService;
+use App\Models\{{table}}Model;
 
 class {{table}}Service extends BaseService
 {
     /**
      * @param $params
-     * @return array
-     * @throws \Exception
+     * @param bool $ispage
+     * @return \App\Helper\PageHelper|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|null
      */
     public function getList($params, $ispage = true)
     {
-        $selector = \Db::table('{{table}}');
-{{selectorParams}}
-        $selector->order('{{primaryKey}} desc');
+        $selector = {{table}}Model::query();{{selectorParams}}
+        $selector->orderBy('{{primaryKey}}', 'desc');
         if ($ispage) {
-            return $this->pagination($selector, $params);
+            return $this->pageHelper->pagination($selector, $params);
         }
-        return $selector->findAll();
+        return $selector->get();
     }
 
     /**
@@ -28,20 +27,13 @@ class {{table}}Service extends BaseService
      */
     public function save{{table}}($data)
     {{{checkUnique}}
-        if (isset($data['{{primaryKey}}']) && $data['{{primaryKey}}']) {
-            \Db::table('{{table}}')->where(['{{primaryKey}}' => $data['{{primaryKey}}']])->update($data);
+        if (!empty($data['{{primaryKey}}'])) {
+            $model = {{table}}Model::query()->find($data['{{primaryKey}}']);
         } else {
-            \Db::table('{{table}}')->insert($data);
+            $model = new {{table}}Model();
         }
-    }
-
-    /**
-     * @param $data
-     * @throws \Exception
-     */
-    public function delete{{table}}($data)
-    {
-        \Db::table('{{table}}')->where($data)->delete();
+        $model->loadData($data);
+        $model->save();
     }
 
 }
