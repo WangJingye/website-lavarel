@@ -196,7 +196,9 @@ class Captcha
 
     private function outputImage()
     {
-        ob_clean();
+        if(ob_get_length()){
+            ob_clean();
+        }
         if (imagetypes() & IMG_GIF) {
             header("Content-Type:image/gif");
             imagegif($this->image);
