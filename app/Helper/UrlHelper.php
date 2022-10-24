@@ -81,10 +81,15 @@ class UrlHelper extends UrlGenerator
 
     public function getActionName()
     {
-        $arr = explode('/', $this->getUri());
+        $url = $this->getUri();
+        if (empty($url) || $url == '/') {
+            $url = 'erp/site-info/index';
+        }
+        $arr = explode('/', $url);
         if (count($arr) != 3) {
             array_unshift($arr, 'app');
         }
+
         return $arr[2];
     }
 

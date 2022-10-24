@@ -11,8 +11,6 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return "Welcome to DMS!";
-});
+
 
 

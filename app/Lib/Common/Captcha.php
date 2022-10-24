@@ -131,7 +131,7 @@ class Captcha
         $code = "123456789abcdefghijkmnpqrstuvwxyzABCDEFGHIJKMNPQRSTUVWXYZ";
         $string = '';
         for ($i = 0; $i < $this->codeNum; $i++) {
-            $char = $code{rand(0, strlen($code) - 1)};
+            $char = $code[rand(0, strlen($code) - 1)];
             $string .= $char;
         }
         $this->checkCode = $string;
@@ -184,12 +184,12 @@ class Captcha
                 $fontsize = rand(12, 16);
                 $x = floor($this->width / $this->codeNum) * $i + 3;
                 $y = rand(0, $this->height - 15);
-                imagechar($this->image, $fontsize, $x, $y, $this->checkCode{$i}, $fontcolor);
+                imagechar($this->image, $fontsize, $x, $y, $this->checkCode[$i], $fontcolor);
             } else {
                 $fontsize = rand(12, 16);
                 $x = floor(($this->width - 8) / $this->codeNum) * $i + 8;
                 $y = rand($fontsize + 5, $this->height);
-                imagettftext($this->image, $fontsize, rand(-30, 30), $x, $y, $fontcolor, $fontFace, $this->checkCode{$i});
+                imagettftext($this->image, $fontsize, rand(-30, 30), $x, $y, $fontcolor, $fontFace, $this->checkCode[$i]);
             }
         }
     }

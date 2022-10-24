@@ -181,7 +181,11 @@ class MenuService extends BaseService
      */
     public function getCurrentMenu()
     {
-        return MenuModel::query()->where(['url' => UrlHelper::instance()->getUri()])->first();
+        $url = UrlHelper::instance()->getUri();
+        if (empty($url) || $url == '/') {
+            $url = 'erp/site-info/index';
+        }
+        return MenuModel::query()->where(['url' => $url])->first();
     }
 
     /**

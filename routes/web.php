@@ -13,16 +13,16 @@
 //$router = $app->router;
 $router->get("generate", "GenerateController@index");
 $router->post("generate", "GenerateController@index");
-
 $router->group(['middleware' => ['web'], 'namespace' => 'Admin\Erp'], function ($router) {
-    $router->get("erp/site-info/index", "SiteInfoController@index");
-    $router->post("erp/site-info/index", "SiteInfoController@index");
-    $router->get("erp/site-info/app-info", "SiteInfoController@appInfo");
-    $router->post("erp/site-info/app-info", "SiteInfoController@appInfo");
-    $router->get("erp/site-info/base-info", "SiteInfoController@baseInfo");
-    $router->post("erp/site-info/base-info", "SiteInfoController@baseInfo");
-    $router->get("erp/site-info/wechat", "SiteInfoController@wechat");
-    $router->post("erp/site-info/wechat", "SiteInfoController@wechat");
+    $router->get("/", "SiteInfoController@index");
+    $router->get("/erp/site-info/index", "SiteInfoController@index");
+    $router->post("/erp/site-info/index", "SiteInfoController@index");
+    $router->get("/erp/site-info/app-info", "SiteInfoController@appInfo");
+    $router->post("/erp/site-info/app-info", "SiteInfoController@appInfo");
+    $router->get("/erp/site-info/base-info", "SiteInfoController@baseInfo");
+    $router->post("/erp/site-info/base-info", "SiteInfoController@baseInfo");
+    $router->get("/erp/site-info/wechat", "SiteInfoController@wechat");
+    $router->post("/erp/site-info/wechat", "SiteInfoController@wechat");
 });
 
 $router->group(['middleware' => ['web'], 'namespace' => 'Admin\System'], function ($router) {
@@ -47,6 +47,8 @@ $router->group(['middleware' => ['web'], 'namespace' => 'Admin\System'], functio
 
     $router->get("/system/public/login", "PublicController@login");
     $router->post("/system/public/login", "PublicController@login");
+    $router->get("/system/public/logout", "PublicController@logout");
+    $router->get("/system/public/logout", "PublicController@logout");
     $router->get("/system/public/captcha", "PublicController@captcha");
     $router->get("/system/admin/profile", "AdminController@profile");
     $router->post("/system/admin/change-profile", "AdminController@changeProfile");

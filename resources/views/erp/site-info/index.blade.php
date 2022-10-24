@@ -1,149 +1,37 @@
 @extends('layouts.main')
+<style>
+    .main-panel {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        height: calc(100% - 11rem);
+    }
+
+    .main-panel-bottom {
+        border-top: dashed 1px #cccccc;
+        min-height: 3rem;
+        line-height: 3rem;
+        color: rgba(0,0,0,.45);
+    }
+
+    svg {
+        width: 1rem;
+    }
+</style>
 @section('content')
-    <style>
-        .main-panel-content {
-            padding: 1rem 2rem;
-            background-color: #e9ecef;
-        }
-
-        .main-panel {
-            width: 100%;
-        }
-
-        .main-panel-one {
-            border: 1px solid #ccc;
-            background-color: #fff;
-            padding: 1rem;
-            display: inline-flex;
-            justify-content: space-between;
-            width: 10rem;
-            margin-bottom: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .main-panel .iconfont {
-            font-size: 2rem;
-        }
-
-        .main-panel .main-panel-icon {
-            color: #28a745;
-            padding-right: 0.5rem;
-        }
-
-        .main-panel .main-panel-title {
-            color: #666
-        }
-
-        .main-panel .main-panel-text {
-            font-size: 1rem;
-        }
-
-        .detail-title {
-            text-align: center;
-            background-color: #e9ecef;
-            padding: 0.5rem;
-        }
-
-        .detail-info {
-            border-left: 1px solid #ddd;
-            border-right: 1px solid #ddd;
-            display: inline-flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0.5rem;
-            height: 5rem;
-        }
-
-        .detail-info:last-child {
-            border-bottom: 1px solid #ddd;
-            display: inline-flex;
-            width: 100%;
-            padding: 0.5rem;
-        }
-
-        .detail-info-number {
-            color: #dc3545
-        }
-
-        .detail-info-title {
-            font-weight: bold;
-            margin: 0.5rem;
-        }
-
-        .detail-info-one {
-            width: 25%;
-            text-align: center;
-        }
-
-        .undo-info {
-            width: 100%;
-        }
-
-        .content-info {
-            width: 100%;
-            margin-bottom: 2rem;
-        }
-
-        .product-info, .user-info {
-            margin-top: 2rem;
-        }
-
-        .product-info, .user-info {
-            width: 100%;
-        }
-
-        a {
-            color: #000;
-        }
-
-        a:hover {
-            text-decoration: none;
-        }
-
-        @media (min-width: 1050px) {
-
-            .main-panel {
-                display: inline-flex;
-                justify-content: space-between;
-            }
-
-            .main-panel-one {
-                border: 1px solid #ccc;
-                background-color: #fff;
-                padding: 1.5rem;
-                display: inline-flex;
-                justify-content: space-between;
-                width: 12rem;
-            }
-
-            .content-info {
-                display: inline-flex;
-                justify-content: space-between;
-            }
-
-            .detail-info-content-one {
-                height: 2rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .detail-info-content-two {
-                height: 4rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .product-info {
-                width: 33%;
-            }
-
-            .user-info {
-                width: 66%;
-            }
-        }
-
-    </style>
+    <div>
+        <div class="main-panel">
+            <div class="text-center" style="font-size: 1.5rem">欢迎进入<?= app()->siteInfo->web_name?></div>
+        </div>
+        <div class="text-center main-panel-bottom">
+            Copyright
+            <svg data-v-d35c119a="" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="copyright"
+                 role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                 class="svg-inline--fa fa-copyright fa-w-16">
+                <path data-v-d35c119a="" fill="currentColor"
+                      d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm117.134 346.753c-1.592 1.867-39.776 45.731-109.851 45.731-84.692 0-144.484-63.26-144.484-145.567 0-81.303 62.004-143.401 143.762-143.401 66.957 0 101.965 37.315 103.422 38.904a12 12 0 0 1 1.238 14.623l-22.38 34.655c-4.049 6.267-12.774 7.351-18.234 2.295-.233-.214-26.529-23.88-61.88-23.88-46.116 0-73.916 33.575-73.916 76.082 0 39.602 25.514 79.692 74.277 79.692 38.697 0 65.28-28.338 65.544-28.625 5.132-5.565 14.059-5.033 18.508 1.053l24.547 33.572a12.001 12.001 0 0 1-.553 14.866z"
+                      class=""></path>
+            </svg> <?= app()->siteInfo->web_name?> 2022
+        </div>
+    </div>
 @endsection

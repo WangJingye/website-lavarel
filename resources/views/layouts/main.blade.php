@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="<?= $css ?>">
     <?php endforeach; ?>
 </head>
-<body style="background-color: #f7f7f9;">
+<body style="background-color: #f6f8f9;">
 <?php
 $menuService = new \App\Lib\MenuService();
 $currentMenu = $menuService->getCurrentMenu();
@@ -86,7 +86,7 @@ foreach ($arr as $v) {
     </div>
     <div class="col-12 col-md-9 col-xl-10 bd-content" style="padding: 0">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb" style="border-radius: 0;margin-bottom: 0;padding: 0.3rem 1rem">
+            <ol class="breadcrumb" style="border-radius: 0;margin-bottom: 0;padding: 0.3rem 1rem;background: #fff">
                 <li class="breadcrumb-item">
                     <a href="<?= \App\Helper\UrlHelper::instance()->to('/') ?>">
                         <i class="glyphicon glyphicon-home"></i> 主页</a>
@@ -105,9 +105,13 @@ foreach ($arr as $v) {
             </ol>
         </nav>
         <div class="bd-container">
-            <h3><?= !empty($title) ? $title : $currentMenu['name'] ?></h3>
-            <hr>
-            @yield('content')
+            <div style="background: #fff;border-radius: 0.3rem;padding: 1rem;min-height: calc(100vh - 7rem)">
+                <?php if($currentMenu['show_title'] == 1):?>
+                <h3><?= !empty($title) ? $title : $currentMenu['name'] ?></h3>
+                <hr>
+                <?php endif;?>
+                @yield('content')
+            </div>
         </div>
     </div>
 </div>

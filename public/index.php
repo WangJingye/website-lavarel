@@ -46,5 +46,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 header('Access-Control-Allow-Methods:GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'); // 允许请求的类型
 header('Access-Control-Allow-Headers: device,uuid,login,timestamp,lang,version,serial-number,company,phone-model,system-version,token,appkey,appsecret,Content-Type,accessToken,Content-Length,Accept-Encoding,X-Requested-with, Origin,DNT,X-CustomHeader,Keep-Alive,User-Agent,If-Modified-Since,Cache-Control,Pragma,Referer,Host,Connection');
 
-
 $app->run();

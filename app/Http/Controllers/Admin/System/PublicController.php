@@ -51,10 +51,10 @@ class PublicController extends Controller
         return $this->render('system/public/login');
     }
 
-    public function logoutAction()
+    public function logout()
     {
-//        \App::$session->set('user');
-//        $this->redirect('system/public/login');
+        Session::put('user',null);
+        return redirect('system/public/login');
     }
 
     public function captcha()
