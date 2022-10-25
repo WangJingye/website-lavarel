@@ -66,7 +66,7 @@
                                 class="glyphicon glyphicon-ok-circle"></i> 启用
                     </div>
                     <?php endif; ?>
-                    <?php if ($v['identity'] == 0 && \Illuminate\Support\Facades\Auth::user()->id != $v['id']): ?>
+                    <?php if ($v['is_admin'] == 0 && \Illuminate\Support\Facades\Auth::user()->id != $v['id']): ?>
                     <div class="btn btn-outline-danger btn-sm reset-password-btn" data-id="<?= $v['id'] ?>"
                          data-default="<?= app()->siteInfo['default_password'] ?>"><i
                                 class="glyphicon glyphicon-repeat"></i> 重置密码

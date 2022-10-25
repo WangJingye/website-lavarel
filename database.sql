@@ -14,7 +14,7 @@ CREATE TABLE `tbl_admin`  (
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '头像地址',
   `salt` char(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '',
-  `identity` tinyint(4) NULL DEFAULT 0 COMMENT '0:普通用户 1:管理员',
+  `is_admin` tinyint(4) NULL DEFAULT 0 COMMENT '0:普通用户 1:管理员',
   `last_login_time` int(11) NULL DEFAULT 0 COMMENT '最后登录时间',
   `passwd_modify_time` int(11) NULL DEFAULT 0 COMMENT '密码最后修改日期',
   `create_time` int(11) UNSIGNED NULL DEFAULT 0 COMMENT '创建时间',

@@ -6,40 +6,40 @@
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">父级功能</label>
             <div class="col-sm-8">
-                <?= \App\Helper\Input\SelectInput::instance(array_column($childList, 'name', 'id'), $model['parent_id'], 'parent_id', 'select2')->show(); ?>
+                <?= \App\Helper\Input\SelectInput::instance(array_column($childList, 'name', 'id'), $model['parent_id']??0, 'parent_id', 'select2')->show(); ?>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">链接地址</label>
             <div class="col-sm-8">
-                <?= \App\Helper\Input\SelectInput::instance($methodList, $model['url'], 'url', 'select')->show(); ?>
+                <?= \App\Helper\Input\SelectInput::instance($methodList, $model['url']??'', 'url', 'select')->show(); ?>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">标题</label>
             <div class="col-sm-8">
-                <input type="text" name="name" class="form-control" value="<?= $model['name'] ?>" placeholder="请输入标题">
+                <input type="text" name="name" class="form-control" value="<?= $model['name']??'' ?>" placeholder="请输入标题">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">排序</label>
             <div class="col-sm-8">
                 <input type="text" name="sort" class="form-control"
-                       value="<?= isset($model['sort']) ? $model['sort'] : '0' ?>" placeholder="请输入排序数字">
+                       value="<?= $model['sort']??'0' ?>" placeholder="请输入排序数字">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">图标样式</label>
             <div class="col-sm-8">
                 <input type="text" name="icon" class="form-control"
-                       value="<?= isset($model['icon']) ? $model['icon'] : 'glyphicon glyphicon-bookmark' ?>"
+                       value="<?= $model['icon']?? 'glyphicon glyphicon-bookmark' ?>"
                        placeholder="glyphicon glyphicon-bookmark">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-4 text-nowrap col-form-label form-label">菜单描述</label>
             <div class="col-sm-8">
-                <textarea name="desc" class="form-control"><?= $model['desc'] ?></textarea>
+                <textarea name="desc" class="form-control"><?= $model['desc']??'' ?></textarea>
             </div>
         </div>
         <div class="form-group row">

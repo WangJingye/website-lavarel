@@ -12,7 +12,6 @@ return [
         ],
     ],
     'actionNoLoginList' => [
-        'app/test' => ['*'],
         'system/public' => ['login', 'logout', 'captcha'],
     ],
     'actionWhiteList' => [

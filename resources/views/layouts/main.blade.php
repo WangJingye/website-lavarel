@@ -25,28 +25,7 @@ foreach ($arr as $v) {
 ?>
 <header class="navbar navbar-expand-lg navbar-dark bd-navbar">
     <div class="col-9 col-md-3 col-xl-2">
-        <ul class="navbar-nav">
-            <li class="nav-item dropdown">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#left-menu-list"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <a class="nav-link dropdown-toggle" style="display:inline;" href="javascript:void(0)" role="button"
-                   data-toggle="dropdown">
-                    <?php if (\Illuminate\Support\Facades\Auth::user()->avatar): ?>
-                    <img class="rounded-circle" src="<?=\Illuminate\Support\Facades\Auth::user()->avatar?>"
-                         style="width:30px;height:30px">
-                    <?php endif; ?>
-                    <span><?=\Illuminate\Support\Facades\Auth::user()->realname ?></span>
-                </a>
-                <div class="dropdown-menu" style="position: absolute">
-                    <a class="dropdown-item"
-                       href="<?= \App\Helper\UrlHelper::instance()->to('system/admin/profile') ?>">个人信息</a>
-                    <a class="dropdown-item"
-                       href="<?= \App\Helper\UrlHelper::instance()->to('system/public/logout') ?>">登出</a>
-                </div>
-            </li>
-        </ul>
+        <div style="color:#fff;text-align: center;font-size: 1.2rem;"><?=app()->siteInfo['web_name']?></div>
     </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-menu-list"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,12 +41,34 @@ foreach ($arr as $v) {
             <?php endforeach; ?>
         </div>
     </div>
+    <ul class="navbar-nav" style="margin-right: 2rem">
+        <li class="nav-item dropdown">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#left-menu-list"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="nav-link dropdown-toggle" style="display:inline;" href="javascript:void(0)" role="button"
+               data-toggle="dropdown">
+                <?php if (\Illuminate\Support\Facades\Auth::user()->avatar): ?>
+                <img class="rounded-circle" src="<?=\Illuminate\Support\Facades\Auth::user()->avatar?>"
+                     style="width:30px;height:30px">
+                <?php endif; ?>
+                <span><?=\Illuminate\Support\Facades\Auth::user()->realname ?></span>
+            </a>
+            <div class="dropdown-menu" style="position: absolute">
+                <a class="dropdown-item"
+                   href="<?= \App\Helper\UrlHelper::instance()->to('system/admin/profile') ?>">个人信息</a>
+                <a class="dropdown-item"
+                   href="<?= \App\Helper\UrlHelper::instance()->to('system/public/logout') ?>">登出</a>
+            </div>
+        </li>
+    </ul>
 </header>
 <div class="row flex-xl-nowrap" style="margin:0">
     <div class="col-12 col-md-3 col-xl-2 bd-sidebar collapse" id="left-menu-list" style="padding: 0">
         <ul class="list-group list-group-flush bd-links">
             <?php foreach ($leftList as $v): ?>
-            <li class="list-group-item main-item <?= isset($activeMenuList[$v['item']['id']]) ? 'active' : '' ?>">
+            <li class="list-group-item main-item<?= isset($activeMenuList[$v['item']['id']]) ? ' active' : '' ?>"<?= $v['item']['url'] ? ' data-url="' . \App\Helper\UrlHelper::instance()->to($v['item']['url']) . '"' : '' ?>>
                 <div><i class="<?= $v['item']['icon'] ?>"></i> <?= $v['item']['name'] ?></div>
             </li>
             <?php if (isset($v['list']) && count($v['list'])): ?>

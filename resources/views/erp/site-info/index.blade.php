@@ -4,7 +4,7 @@
         justify-content: center;
         align-items: center;
         display: flex;
-        height: calc(100% - 11rem);
+        height: calc(100% - 9rem);
     }
 
     .main-panel-bottom {

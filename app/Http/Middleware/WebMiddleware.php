@@ -48,7 +48,7 @@ class WebMiddleware
             if (!$menu) {
                 throw new \Exception($uri . '该地址不在权限中');
             }
-            if (Auth::user()->identity == 1) {
+            if (Auth::user()->is_admin == 1) {
                 return $next($request);
             }
             $access = RoleMenuModel::from('role_menu as a')

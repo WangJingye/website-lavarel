@@ -63,7 +63,7 @@ class MenuService extends BaseService
     public function getAdminMenus()
     {
         $selector = MenuModel::query()->where(['status' => 1]);
-        if (Auth::user()->identity == 0) {
+        if (Auth::user()->is_admin == 0) {
             $roleMenus = RoleMenuModel::query()->from('role_menu as a')
                 ->leftJoin('role_admin as b', 'a.role_id', '=', 'b.role_id')
                 ->where(['b.admin_id' => Auth::user()->id])
@@ -78,17 +78,17 @@ class MenuService extends BaseService
                     }
                 }
             }
-            $lasts = $selector2->where(['status' => 1, 'depth' => 3])->get()->toArray();
+            $lasts = $selector2->where(['status' => 1])->get()->toArray();
             $middles = [];
             $tops = [];
             if (count($lasts)) {
                 $roleMenus = array_merge($roleMenus, array_column($lasts, 'id'));
                 $lasts = array_column($lasts, 'parent_id');
                 $roleMenus = array_merge($roleMenus, $lasts);
-                $middles = MenuModel::query()->select(['id', 'parent_id'])->whereIn('id', $lasts)->where(['depth' => 2])->get()->toArray();
+                $middles = MenuModel::query()->select(['id', 'parent_id'])->whereIn('id', $lasts)->get()->toArray();
             }
             if (count($middles)) {
-                $tops = MenuModel::query()->select(['id'])->where(['id' => ['in', array_column($middles, 'parent_id')], 'depth' => 1])->pluck('id')->toArray();
+                $tops = MenuModel::query()->select(['id'])->where(['id' => ['in', array_column($middles, 'parent_id')]])->pluck('id')->toArray();
                 $roleMenus = array_merge($roleMenus, $lasts);
             }
             if (count($tops)) {
@@ -98,7 +98,7 @@ class MenuService extends BaseService
                 $selector->whereIn('id', $roleMenus);
             }
         }
-        return $selector->orderBy('sort', 'desc')->orderBy('create_time', 'asc')
+        return $selector->orderBy('sort', 'desc')->orderBy('create_time')
             ->get()->toArray();
     }
 
@@ -229,6 +229,9 @@ class MenuService extends BaseService
         $uriList = [];
         foreach ($routes as $route) {
             $uri = trim($route['uri'], '/');
+            if ($uri==''){
+                continue;
+            }
             if (in_array($uri, $actionList)) {
                 continue;
             }
@@ -255,17 +258,6 @@ class MenuService extends BaseService
             }
             $selector->where('id', '!=', $data['id']);
         }
-        if (!empty($data['parent_id'])) {
-            $parent = MenuModel::query()->where(['id' => $data['parent_id']])->first();
-            $data['depth'] = $parent['depth'] + 1;
-        } else {
-            $data['depth'] = 1;
-        }
-        $row = $selector->where(['name' => $data['name']])->first();
-        if ($row) {
-            throw new \Exception('标题不能重复');
-        }
-
         if (isset($data['id']) && $data['id']) {
             MenuModel::query()->where(['id' => $data['id']])->update($data);
         } else {
@@ -274,7 +266,5 @@ class MenuService extends BaseService
             $model->save();
             $data['id'] = $model['id'];
         }
-        $this->repairLevel($data['id'], $data['depth'], 'menu', 'id', 'depth');
-
     }
 }

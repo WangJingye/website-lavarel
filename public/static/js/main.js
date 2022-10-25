@@ -85,11 +85,15 @@ $(function () {
         $('.sub-item').collapse('hide');
         $(this).next('.sub-item').collapse('toggle')
     });
-    $('.list-sub-item .list-group-item').click(function () {
-        location.href = $(this).data('url');
+    $('.list-group-item').click(function () {
+        const url = $(this).data('url');
+        if (url) {
+            location.href = url;
+        }
+        return false;
     });
     $('.search-form').on('click', '.search-btn,.search-with-export-btn', function () {
-        var form = $(this).parents('form');
+        const form = $(this).parents('form');
         if ($('#page-size').get(0)) {
             form.append('<input type="hidden" name="page_size" value="' + $('#page-size').val() + '"/>');
         }
@@ -98,8 +102,8 @@ $(function () {
         }
         form.submit();
     }).on('click', '.export-btn', function () {
-        var $this = $(this);
-        var html = '<form>' +
+        const $this = $(this);
+        const html = '<form>' +
             '<div class="custom-control custom-radio">' +
             '<input type="radio" name="export_type" id="export-type1" value="1" checked class="custom-control-input">' +
             '<label class="custom-control-label" for="export-type1">条件导出</label>' +
@@ -111,8 +115,8 @@ $(function () {
             '</form>';
         $.showModal({
             title: '导出', content: html, width: '30vw', okCallback: function () {
-                var type = $('#modal-event').find('input[name=export_type]:checked').val();
-                var form = $this.parents('form');
+                const type = $('#modal-event').find('input[name=export_type]:checked').val();
+                const form = $this.parents('form');
                 if (type == 1) {
                     if (!form.find('input[name=export_type]').get(0)) {
                         form.append('<input type="hidden" name="export_type" value="' + type + '">');
@@ -142,7 +146,7 @@ $(function () {
         })
     });
     $('#page-size').change(function () {
-        var form = $('.search-form');
+        const form = $('.search-form');
         if (!form.find('[name=page_size]').get(0)) {
             form.append('<input type="hidden" name="page_size" value="' + $(this).val() + '">');
         } else {
@@ -165,7 +169,7 @@ $(function () {
         }
     });
     $('.select-ztree').each(initZTree).click(function (e) {
-        var ztreeId = $(this).attr('data-ztree-id');
+        const ztreeId = $(this).attr('data-ztree-id');
         if ($("#menuContent" + ztreeId).is(':hidden')) {
             $("#menuContent" + ztreeId).slideDown("fast");
         } else {
@@ -179,8 +183,9 @@ $(function () {
         });
     });
 });
+
 function initZTree() {
-    var selectZtreeSetting = {
+    const selectZtreeSetting = {
         check: {
             enable: true,
             chkboxType: {"Y": "s", "N": "s"}
@@ -203,8 +208,8 @@ function initZTree() {
                     obj = $('.select-ztree[data-ztree-id="' + zTreeId + '"]');
                 for (var i = 0, l = nodes.length; i < l; i++) {
                     if (obj.attr('data-step') && obj.attr('data-step') == 'last') {
-                            vList.push(nodes[i].name);
-                            idList.push(nodes[i].id);
+                        vList.push(nodes[i].name);
+                        idList.push(nodes[i].id);
                     } else {
                         vList.push(nodes[i].name);
                         idList.push(nodes[i].id);
@@ -219,8 +224,8 @@ function initZTree() {
     };
 
     $(this).attr('data-ztree-id', $('.select-ztree[data-ztree-id=1]').length + 1);
-    var ztreeId = $(this).attr('data-ztree-id');
-    var zNodes = selectZtreeData[$(this).attr('data-data_key')],
+    const ztreeId = $(this).attr('data-ztree-id');
+    const zNodes = selectZtreeData[$(this).attr('data-data_key')],
         vList = [],
         idList = [];
     for (var i in zNodes) {
@@ -230,7 +235,7 @@ function initZTree() {
         }
     }
     $(this).attr('value', vList.join(','));
-    var html = '';
+    let html = '';
     if ($(this).attr('name')) {
         var nameHtml = 'name="' + $(this).attr('name') + '"';
         html = '<input type="hidden" class="select-ztree-key" ' + nameHtml + ' value="' + idList.join(',') + '">';

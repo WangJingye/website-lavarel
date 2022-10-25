@@ -94,9 +94,9 @@ class Generate extends ObjectAccess
     public function run()
     {
         if ($this->theme == 'web') {
-            $this->common()->service()->controller()->view()->js()->route();
+            $this->common()->model()->service()->controller()->view()->js()->route();
         } else {
-            $this->common()->service()->controller();
+            $this->common()->model()->service()->controller();
         }
     }
 
@@ -105,10 +105,8 @@ class Generate extends ObjectAccess
         $webStr = file_get_contents(app()->basePath() . '/routes/web.php');
         $prefixUri = lcfirst($this->module) . '/' . lcfirst($this->table) . '/';
         $list = [
-            $prefixUri . 'index' => ['type' => ['get'], 'action' => 'index'],
+            $prefixUri . 'index' => ['type' => ['get', 'post'], 'action' => 'index'],
             $prefixUri . 'edit' => ['type' => ['get', 'post'], 'action' => 'edit'],
-
-
             $prefixUri . 'delete' => ['type' => ['post'], 'action' => 'delete'],
         ];
         if (isset($this->option['fcomment']['status'])) {
@@ -290,11 +288,11 @@ class Generate extends ObjectAccess
                 $res = $this->getChooseList($field);
             }
             if (in_array($this->option['ftype'][$field], ['select', 'select2', 'radio', 'checkbox'])) {
-                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\SelectInput::instance($' . $res['variable'] . ', $model[\'' . $field . '\'], \'' . $field . '\', \'' . $this->option['ftype'][$field] . '\')->show(); ?>';
+                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\SelectInput::instance($' . $res['variable'] . ', $model[\'' . $field . '\'] ?? \'\', \'' . $field . '\', \'' . $this->option['ftype'][$field] . '\')->show(); ?>';
             } else if ($this->option['ftype'][$field] == 'textarea') {
-                $inputParams .= PHP_EOL . '                <textarea name="' . $field . '" class="form-control" placeholder="请输入' . $label . '"><?= $model[\'' . $field . '\'] ?></textarea>';
+                $inputParams .= PHP_EOL . '                <textarea name="' . $field . '" class="form-control" placeholder="请输入' . $label . '"><?= $model[\'' . $field . '\'] ?? \'\' ?></textarea>';
             } else if ($this->option['ftype'][$field] == 'image') {
-                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\ImageInput::instance($model[\'' . $field . '\'], \'' . $field . '\', 9)->show(); ?>';;
+                $inputParams .= PHP_EOL . '                <?= \App\Helper\Input\ImageInput::instance($model[\'' . $field . '\'] ?? \'\', \'' . $field . '\', 9)->show(); ?>';;
             } else {
                 $placeholder = '请输入' . $label;
                 if (in_array($this->option['ftype'][$field], ['date', 'date-normal', 'datetime', 'datetime-normal'])) {
@@ -302,7 +300,7 @@ class Generate extends ObjectAccess
                 } else if (in_array($this->option['ftype'][$field], ['datetime', 'datetime-normal'])) {
                     $placeholder = $label . '，格式为2019-01-01 09:00:00';
                 }
-                $inputParams .= PHP_EOL . '                <input type="text" name="' . $field . '" class="form-control" value="<?= $model[\'' . $field . '\']?>" placeholder="' . $placeholder . '">';
+                $inputParams .= PHP_EOL . '                <input type="text" name="' . $field . '" class="form-control" value="<?= $model[\'' . $field . '\'] ?? \'\' ?>" placeholder="' . $placeholder . '">';
             }
             $inputParams .= PHP_EOL . '            </div>';
             $inputParams .= PHP_EOL . '        </div>';

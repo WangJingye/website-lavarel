@@ -5,7 +5,7 @@
             <div class="btn btn-success pull-right"><i class="glyphicon glyphicon-plus"></i> 创建</div>
         </a>
     </div>
-    <form class="search-form" action="<?= \App\Helper\UrlHelper::instance()->to('{{mmodule}}/{{controllerUrl}}/index') ?>" method="get">{{searchPer}}
+    <form class="search-form" action="<?= \App\Helper\UrlHelper::instance()->to('{{mmodule}}/{{controllerUrl}}/index') ?>" method="post">{{searchPer}}
         <?php $searchList = {{searchList}}; ?>
         <div class="form-content">
             <span class="col-form-label search-label">查询条件</span>

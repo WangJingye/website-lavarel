@@ -92,7 +92,7 @@ class RoleController extends Controller
         }
         $model = RoleModel::query()->where(['id' => $params['id']])->first();
         $adminIdList = RoleAdminModel::query()->where(['role_id' => $params['id']])->pluck('admin_id')->toArray();
-        $adminList = AdminModel::query()->where(['identity' => 0])->get()->toArray();
+        $adminList = AdminModel::query()->where(['is_admin' => 0])->get()->toArray();
         return $this->render('system/role/set-role-admin', [
             'model' => $model,
             'adminList' => $adminList,

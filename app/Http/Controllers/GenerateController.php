@@ -35,7 +35,7 @@ class GenerateController extends BaseController
                     $list = json_decode(json_encode($list), true);
                     $fields= array_column($list, null, 'Field');
                     echo json_encode(['code' => 200, 'data' => array_keys($fields)]);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     echo json_encode(['code' => 400, 'message' => $e->getMessage()]);
                 }
                 die;
